@@ -2,6 +2,7 @@ package io.sdkman.cliversions
 
 import cats.effect.Async
 import cats.implicits.*
+import com.mongodb.reactivestreams.client.MongoCollection
 import io.circe.{Decoder, Encoder}
 import mongo4cats.bson
 import mongo4cats.bson.Document
@@ -33,10 +34,9 @@ object VersionRegistry:
 
     given[F[_]]: EntityEncoder[F, Versions] = jsonEncoderOf
 
-  def impl[F[_] : Async](client: MongoClient[F]): VersionRegistry[F] = new VersionRegistry[F] :
+  def impl[F[_] : Async](db: MongoDatabase[F]): VersionRegistry[F] = new VersionRegistry[F] :
     def get(channel: String): F[VersionRegistry.Versions] =
       for
-        db <- client.getDatabase("sdkman")
         coll <- db.getCollection("application")
         versions <- coll.find.first
         foundVersions = versions.getOrElse(bson.Document.empty)

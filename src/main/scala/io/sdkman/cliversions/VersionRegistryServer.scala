@@ -19,11 +19,18 @@ object VersionRegistryServer:
   val Host = ipv4"127.0.0.1"
 
   val Port = port"8080"
+  
+  val MongoConnectionString = "mongodb://localhost:27017"
+  
+  val MongoDbName = "sdkman"
+  
+  val MongoCollection = "application"
 
   def stream[F[_] : Async]: Stream[F, Nothing] = {
     for {
-      client: MongoClient[F] <- Stream.resource(MongoClient.fromConnectionString[F]("mongodb://localhost:27017"))
-      versionsAlg = VersionRegistry.impl[F](client)
+      client: MongoClient[F] <- Stream.resource(MongoClient.fromConnectionString[F](MongoConnectionString))
+      db <- Stream.eval(client.getDatabase(MongoDbName))
+      versionsAlg = VersionRegistry.impl[F](db)
 
       httpApp = VersionRegistryRoutes.activeVersionsRoutes[F](versionsAlg).orNotFound
 
