@@ -11,9 +11,9 @@ object VersionRegistryRoutes:
     val dsl = new Http4sDsl[F] {}
     import dsl._
     HttpRoutes.of[F] {
-      case GET -> Root / "versions" / beta =>
+      case GET -> Root / "versions" / channel =>
         for {
-          versions <- registry.get(beta)
+          versions <- registry.get(channel)
           response <- Ok(versions)
         } yield response
     }

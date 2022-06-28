@@ -1,8 +1,8 @@
 val Http4sVersion = "0.23.12"
 val Mongo4catsVersion = "0.4.8"
-val MunitVersion = "0.7.29"
 val LogbackVersion = "1.2.6"
 val MunitCatsEffectVersion = "1.0.6"
+val ScalaTestVersion = "3.2.12"
 
 lazy val root = (project in file("."))
   .settings(
@@ -16,9 +16,10 @@ lazy val root = (project in file("."))
       "org.http4s"          %% "http4s-circe"        % Http4sVersion,
       "org.http4s"          %% "http4s-dsl"          % Http4sVersion,
       "io.github.kirill5k"  %% "mongo4cats-core"     % Mongo4catsVersion,
-      "io.github.kirill5k"  %% "mongo4cats-circe"     % Mongo4catsVersion,
-      "org.scalameta"       %% "munit"               % MunitVersion           % Test,
-      "org.typelevel"       %% "munit-cats-effect-3" % MunitCatsEffectVersion % Test,
+      "io.github.kirill5k"  %% "mongo4cats-circe"    % Mongo4catsVersion,
+      "org.scalatest"       %% "scalatest"           % ScalaTestVersion % Test,
+      "org.typelevel"       %% "cats-effect-testing-scalatest" % "1.4.0" % Test,
+      "io.github.kirill5k"  %% "mongo4cats-embedded" % Mongo4catsVersion      % Test,
       "ch.qos.logback"      %  "logback-classic"     % LogbackVersion,
     ),
     testFrameworks += new TestFramework("munit.Framework")
