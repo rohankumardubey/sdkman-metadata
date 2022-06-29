@@ -19,16 +19,18 @@ object VersionRegistryServer:
   val Host = ipv4"127.0.0.1"
 
   val Port = port"8080"
-  
+
   val MongoConnectionString = "mongodb://localhost:27017"
-  
+
   val MongoDbName = "sdkman"
-  
+
   val MongoCollection = "application"
 
-  def stream[F[_] : Async]: Stream[F, Nothing] = {
+  def stream[F[_]: Async]: Stream[F, Nothing] = {
     for {
-      client: MongoClient[F] <- Stream.resource(MongoClient.fromConnectionString[F](MongoConnectionString))
+      client: MongoClient[F] <- Stream.resource(
+        MongoClient.fromConnectionString[F](MongoConnectionString)
+      )
       db <- Stream.eval(client.getDatabase(MongoDbName))
       versionsAlg = VersionRegistry.impl[F](db)
 
@@ -37,7 +39,8 @@ object VersionRegistryServer:
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 
       exitCode <- Stream.resource(
-        EmberServerBuilder.default[F]
+        EmberServerBuilder
+          .default[F]
           .withHost(Host)
           .withPort(Port)
           .withHttpApp(finalHttpApp)

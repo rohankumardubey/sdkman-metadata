@@ -32,20 +32,22 @@ object VersionRegistry:
   object Versions:
     given Encoder[Versions] = Encoder.AsObject.derived[Versions]
 
-    given[F[_]]: EntityEncoder[F, Versions] = jsonEncoderOf
+    given [F[_]]: EntityEncoder[F, Versions] = jsonEncoderOf
 
-  def impl[F[_] : Async](db: MongoDatabase[F]): VersionRegistry[F] = new VersionRegistry[F] :
+  def impl[F[_]: Async](db: MongoDatabase[F]): VersionRegistry[F] = new VersionRegistry[F]:
     def get(channel: String): F[VersionRegistry.Versions] =
       for
-        coll <- db.getCollection("application")
+        coll     <- db.getCollection("application")
         versions <- coll.find.first
         foundVersions = versions.getOrElse(bson.Document.empty)
       yield channel match
-        case "beta" => Versions(
-          cliVersion = foundVersions.getString("betaCliVersion"),
-          nativeVersion = foundVersions.getString("stableNativeCliVersion")
-        )
-        case _ => Versions(
-          cliVersion = foundVersions.getString("stableCliVersion"),
-          nativeVersion = foundVersions.getString("stableNativeCliVersion")
-        )
+        case "beta" =>
+          Versions(
+            cliVersion = foundVersions.getString("betaCliVersion"),
+            nativeVersion = foundVersions.getString("stableNativeCliVersion")
+          )
+        case _ =>
+          Versions(
+            cliVersion = foundVersions.getString("stableCliVersion"),
+            nativeVersion = foundVersions.getString("stableNativeCliVersion")
+          )
