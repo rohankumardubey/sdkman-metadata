@@ -1,3 +1,4 @@
+val CatsEffectTestingScalaTestVersion = "1.4.0"
 val Http4sVersion = "0.23.12"
 val Mongo4catsVersion = "0.4.8"
 val LogbackVersion = "1.2.6"
@@ -18,7 +19,7 @@ lazy val root = (project in file("."))
       "io.github.kirill5k"  %% "mongo4cats-core"     % Mongo4catsVersion,
       "io.github.kirill5k"  %% "mongo4cats-circe"    % Mongo4catsVersion,
       "org.scalatest"       %% "scalatest"           % ScalaTestVersion % Test,
-      "org.typelevel"       %% "cats-effect-testing-scalatest" % "1.4.0" % Test,
+      "org.typelevel"       %% "cats-effect-testing-scalatest" % CatsEffectTestingScalaTestVersion % Test,
       "io.github.kirill5k"  %% "mongo4cats-embedded" % Mongo4catsVersion      % Test,
       "ch.qos.logback"      %  "logback-classic"     % LogbackVersion,
     ),
