@@ -4,6 +4,7 @@ val Mongo4catsVersion                 = "0.4.8"
 val LogbackVersion                    = "1.2.6"
 val MunitCatsEffectVersion            = "1.0.6"
 val ScalaTestVersion                  = "3.2.12"
+val TypesafeConfig                    = "1.4.2"
 
 lazy val root = (project in file("."))
   .settings(
@@ -16,6 +17,7 @@ lazy val root = (project in file("."))
       "org.http4s"         %% "http4s-ember-client" % Http4sVersion,
       "org.http4s"         %% "http4s-circe"        % Http4sVersion,
       "org.http4s"         %% "http4s-dsl"          % Http4sVersion,
+      "com.typesafe"        % "config"              % TypesafeConfig,
       "io.github.kirill5k" %% "mongo4cats-core"     % Mongo4catsVersion,
       "io.github.kirill5k" %% "mongo4cats-circe"    % Mongo4catsVersion,
       "org.scalatest"      %% "scalatest"           % ScalaTestVersion % Test,
