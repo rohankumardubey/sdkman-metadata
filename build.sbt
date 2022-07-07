@@ -6,6 +6,8 @@ val MunitCatsEffectVersion            = "1.0.6"
 val ScalaTestVersion                  = "3.2.12"
 val TypesafeConfig                    = "1.4.2"
 
+Test / parallelExecution := false
+
 lazy val root = (project in file("."))
   .settings(
     organization := "io.sdkman",
