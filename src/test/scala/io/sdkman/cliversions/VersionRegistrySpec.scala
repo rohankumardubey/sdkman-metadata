@@ -19,10 +19,6 @@ import scala.concurrent.Future
 
 class VersionRegistrySpec extends AsyncWordSpec with AsyncIOSpec with Matchers:
 
-  val mongoPort: Int = 27017
-
-  val MongoConnectionString = s"mongodb://localhost:$mongoPort"
-
   private val application =
     Document("stableCliVersion", "5.15.0")
       .append("betaCliVersion", "latest+9f86a55")

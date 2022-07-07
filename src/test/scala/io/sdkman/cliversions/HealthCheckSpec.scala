@@ -26,10 +26,6 @@ import org.scalatest.wordspec.AsyncWordSpec
 
 class HealthCheckSpec extends AsyncWordSpec with AsyncIOSpec with Matchers:
 
-  val mongoPort: Int = 27017
-
-  val MongoConnectionString = s"mongodb://localhost:$mongoPort"
-
   private val application = Document("alive", "OK")
 
   "HealthCheck" should {
