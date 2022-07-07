@@ -16,3 +16,13 @@ object VersionRegistryRoutes:
         response <- Ok(versions)
       } yield response
     }
+
+  def healthCheckRoute[F[_]: Sync](healthCheck: HealthCheck[F]): HttpRoutes[F] =
+    val dsl = new Http4sDsl[F] {}
+    import dsl._
+    HttpRoutes.of[F] { case GET -> Root / "alive" =>
+      for {
+        application <- healthCheck.alive()
+        response <- Ok(application)
+      } yield response
+    }

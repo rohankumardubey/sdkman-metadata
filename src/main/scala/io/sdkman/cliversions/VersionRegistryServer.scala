@@ -25,9 +25,13 @@ object VersionRegistryServer extends VersionRegistryConfig:
         MongoClient.fromConnectionString[F](mongoConnectionString(mongoHost))
       )
       db <- Stream.eval(client.getDatabase(mongoDbName))
-      versionsAlg = VersionRegistry.impl[F](db)
+      versionsAlg    = VersionRegistry.impl[F](db)
+      healthCheckAlg = HealthCheck.impl[F](db)
 
-      httpApp = VersionRegistryRoutes.activeVersionsRoutes[F](versionsAlg).orNotFound
+      httpApp = (
+        VersionRegistryRoutes.activeVersionsRoutes[F](versionsAlg) <+>
+          VersionRegistryRoutes.healthCheckRoute[F](healthCheckAlg)
+      ).orNotFound
 
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 
