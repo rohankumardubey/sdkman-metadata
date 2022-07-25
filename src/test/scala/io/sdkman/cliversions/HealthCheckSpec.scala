@@ -1,7 +1,7 @@
 package io.sdkman.cliversions
 
 import cats.effect.testing.scalatest.AsyncIOSpec
-import cats.effect.{Async, IO}
+import cats.effect.{Async, IO, Resource}
 import cats.implicits.*
 import com.mongodb.reactivestreams.client.MongoCollection
 import io.circe.{Decoder, Encoder}
@@ -23,49 +23,35 @@ import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
+import weaver.*
 
-class HealthCheckSpec extends AsyncWordSpec with AsyncIOSpec with Matchers:
+import java.util.UUID
+import java.util.UUID.randomUUID
 
-  private val application = Document("alive", "OK")
+object HealthCheckSpec extends IOSuite:
 
-  "HealthCheck" should {
+  private val applicationDocument = Document("alive", "OK")
 
-    "have success status compliant with a health check" in {
-      mongoClient[IO]
-        .use { client =>
-          for {
-            _        <- initialiseDatabase(client)(application)
-            db       <- client.getDatabase("sdkman")
-            response <- getFromHealthCheck(db)
-          } yield response.status
-        }
-        .asserting { actual =>
-          actual shouldBe Status.Ok
-        }
-        .unsafeToFuture()
-    }
+  private def dbName = s"sdkman-$randomUUID"
+  
+  override type Res = MongoClient[IO]
+  override def sharedResource: Resource[IO, MongoClient[IO]] = mongoClient[IO]
 
-    "return an appropriate success body" in {
-      mongoClient[IO]
-        .use { client =>
-          for {
-            _        <- initialiseDatabase(client)(application)
-            db       <- client.getDatabase("sdkman")
-            response <- getFromHealthCheck(db)
-            str      <- response.as[String]
-          } yield str
-        }
-        .asserting { actual =>
-          actual shouldBe """{"alive":"OK"}"""
-        }
-        .unsafeToFuture()
-    }
+  test("should have success status") { client =>
+    for {
+      db       <- client.getDatabase(dbName)
+      _        <- initialiseDatabase(db)(applicationDocument)
+      response <- getFromRoutesWith(db)(path"/alive")
+      _        <- db.drop
+    } yield expect(response.status == Status.Ok)
   }
 
-  def getFromHealthCheck[F[_]: Async](db: MongoDatabase[F]): F[Response[F]] =
-    val url         = uri"http://localhost:8080".withPath(path"/alive")
-    val request     = Request[F](Method.GET, url)
-    val healthCheck = HealthCheck.impl(db)
-    VersionRegistryRoutes
-      .healthCheckRoute(healthCheck)
-      .orNotFound(request)
+  test("should return an appropriate success body") { client =>
+    for {
+      db       <- client.getDatabase(dbName)
+      _        <- initialiseDatabase(db)(applicationDocument)
+      response <- getFromRoutesWith(db)(path"/alive")
+      str      <- response.as[String]
+      _        <- db.drop
+    } yield expect(str == """{"alive":"OK"}""")
+  }
