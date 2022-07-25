@@ -36,26 +36,26 @@ object VersionRegistrySpec extends IOSuite:
     for {
       db       <- client.getDatabase(dbName)
       _        <- initialiseDatabase(db)(applicationDocument)
-      response <- getFromRoutesWith(db)(path"/versions/stable")
+      response <- getFromRoutesWith(db)(path"/cli/stable")
       _        <- db.drop
     } yield expect(response.status == Status.Ok)
   }
 
-  test("return stable channel versions") { client =>
+  test("return stable channel cli versions") { client =>
     for {
       db       <- client.getDatabase(dbName)
       _        <- initialiseDatabase(db)(applicationDocument)
-      response <- getFromRoutesWith(db)(path"/versions/stable")
+      response <- getFromRoutesWith(db)(path"/cli/stable")
       json     <- response.as[String]
       _        <- db.drop
     } yield expect(json == """{"cliVersion":"5.15.0","nativeVersion":"0.0.15"}""")
   }
 
-  test("return beta channel versions") { client =>
+  test("return beta channel cli versions") { client =>
     for {
       db       <- client.getDatabase(dbName)
       _        <- initialiseDatabase(db)(applicationDocument)
-      response <- getFromRoutesWith(db)(path"/versions/beta")
+      response <- getFromRoutesWith(db)(path"/cli/beta")
       json     <- response.as[String]
       _        <- db.drop
     } yield expect(json == """{"cliVersion":"latest+9f86a55","nativeVersion":"0.0.15"}""")

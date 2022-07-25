@@ -17,7 +17,7 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits.*
 import org.http4s.server.middleware.Logger
 
-object VersionRegistryServer extends VersionRegistryConfig:
+object CliMetadataServer extends CliMetadataConfig:
 
   def stream[F[_]: Async]: Stream[F, Nothing] = {
     for {
@@ -29,25 +29,25 @@ object VersionRegistryServer extends VersionRegistryConfig:
       healthCheckAlg = HealthCheck.impl[F](db)
 
       httpApp = (
-        VersionRegistryRoutes.activeVersionsRoutes[F](versionsAlg) <+>
-          VersionRegistryRoutes.healthCheckRoute[F](healthCheckAlg)
+        AppRoutes.cliRoute[F](versionsAlg) <+>
+          AppRoutes.healthCheckRoute[F](healthCheckAlg)
       ).orNotFound
 
-      finalHttpApp = Logger.httpApp(true, true)(httpApp)
+      loggingHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
 
       exitCode <- Stream.resource(
         EmberServerBuilder
           .default[F]
           .withHost(serverHost)
           .withPort(serverPort)
-          .withHttpApp(finalHttpApp)
+          .withHttpApp(loggingHttpApp)
           .build >>
           Resource.eval(Async[F].never)
       )
     } yield exitCode
   }.drain
 
-trait VersionRegistryConfig:
+trait CliMetadataConfig:
 
   private val config = ConfigFactory.load()
 

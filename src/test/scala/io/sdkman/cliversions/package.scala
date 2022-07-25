@@ -42,5 +42,5 @@ package object cliversions:
     val request     = Request[F](Method.GET, url)
     val registry    = VersionRegistry.impl(db)
     val healthCheck = HealthCheck.impl(db)
-    (VersionRegistryRoutes.activeVersionsRoutes(registry) <+>
-      VersionRegistryRoutes.healthCheckRoute(healthCheck)).orNotFound(request)
+    (AppRoutes.cliRoute(registry) <+>
+      AppRoutes.healthCheckRoute(healthCheck)).orNotFound(request)
