@@ -23,6 +23,6 @@ object AppRoutes:
     HttpRoutes.of[F] { case GET -> Root / "alive" =>
       for {
         application <- healthCheck.alive()
-        response <- Ok(application)
+        response    <- Ok(application)
       } yield response
     }
